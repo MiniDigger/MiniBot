@@ -156,6 +156,8 @@ public class GitHubListener {
         
         // end events
         
+        port(3263);
+        
         // register route
         post("/github", (req, res) -> {
             String type = req.headers("X-GitHub-Event");
