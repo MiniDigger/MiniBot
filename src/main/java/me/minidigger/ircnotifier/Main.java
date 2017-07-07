@@ -44,6 +44,7 @@ public class Main {
                 .setNickservNick(name)
                 .setNickservPassword(password)
                 .addAutoJoinChannel(channel)
+                .addListener(new CommandListener())
                 //.addListener(apiai)
                 .buildConfiguration();
         
