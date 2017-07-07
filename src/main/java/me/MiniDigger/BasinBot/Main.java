@@ -34,13 +34,13 @@ public class Main {
     public void start(String name, String server, String channel, String APIAI) {
         logger.info("Starting...");
         
-        APIAI apiai = new APIAI(APIAI);
+        //APIAI apiai = new APIAI(APIAI);
         
         Configuration configuration = new Configuration.Builder()
                 .setName(name)
                 .addServer(server)
                 .addAutoJoinChannel(channel)
-                .addListener(apiai)
+                //.addListener(apiai)
                 .buildConfiguration();
         
         PircBotX bot = new PircBotX(configuration);
