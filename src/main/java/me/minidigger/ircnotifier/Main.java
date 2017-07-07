@@ -1,4 +1,4 @@
-package me.MiniDigger.BasinBot;
+package me.minidigger.ircnotifier;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -21,6 +21,7 @@ public class Main {
     public static void main(String[] args) throws ParseException {
         Options options = new Options();
         options.addOption("name", true, "The name of the bot");
+        options.addOption("password", true, "The nickserv password of the bot");
         options.addOption("server", true, "The server the bot will connect to");
         options.addOption("channel", true, "The channel the bot will join");
         options.addOption("apiai", true, "The API.AI key");
@@ -28,10 +29,10 @@ public class Main {
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = parser.parse(options, args);
         
-        new Main().start(cmd.getOptionValue("name"), cmd.getOptionValue("server"), cmd.getOptionValue("channel"), cmd.getOptionValue("apiai"));
+        new Main().start(cmd.getOptionValue("name"), cmd.getOptionValue("password"), cmd.getOptionValue("server"), cmd.getOptionValue("channel"), cmd.getOptionValue("apiai"));
     }
     
-    public void start(String name, String server, String channel, String APIAI) {
+    public void start(String name, String password, String server, String channel, String APIAI) {
         logger.info("Starting...");
         
         //APIAI apiai = new APIAI(APIAI);
@@ -39,6 +40,9 @@ public class Main {
         Configuration configuration = new Configuration.Builder()
                 .setName(name)
                 .addServer(server)
+                .setAutoReconnect(true)
+                .setNickservNick(name)
+                .setNickservPassword(password)
                 .addAutoJoinChannel(channel)
                 //.addListener(apiai)
                 .buildConfiguration();

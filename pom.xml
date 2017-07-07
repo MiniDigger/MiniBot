@@ -66,7 +66,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>me.MiniDigger.BasinBot.Main</mainClass>
+                            <mainClass>me.minidigger.ircnotifier.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

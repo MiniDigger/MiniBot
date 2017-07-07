@@ -1,4 +1,4 @@
-package me.MiniDigger.BasinBot;
+package me.minidigger.ircnotifier;
 
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.MessageEvent;

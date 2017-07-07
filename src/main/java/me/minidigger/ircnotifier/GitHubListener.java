@@ -1,4 +1,4 @@
-package me.MiniDigger.BasinBot;
+package me.minidigger.ircnotifier;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
