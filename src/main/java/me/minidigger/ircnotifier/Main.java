@@ -17,6 +17,7 @@ public class Main {
     
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
     private static final Logger ghLogger = LoggerFactory.getLogger(GitHubListener.class);
+    private static final Logger ciLogger = LoggerFactory.getLogger(JenkinsListener.class);
     
     public static void main(String[] args) throws ParseException {
         Options options = new Options();
@@ -52,6 +53,11 @@ public class Main {
         
         startThread("GitHub Listener", () -> new GitHubListener((msg) -> {
             ghLogger.info(msg);
+            bot.sendIRC().message(channel, msg);
+        }));
+
+        startThread("Jenkins Listener", () -> new JenkinsListener((msg) -> {
+            ciLogger.info(msg);
             bot.sendIRC().message(channel, msg);
         }));
         
