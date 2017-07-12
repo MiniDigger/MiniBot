@@ -16,7 +16,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import static spark.Spark.exception;
-import static spark.Spark.halt;
 import static spark.Spark.port;
 
 public class Main {
@@ -69,7 +68,8 @@ public class Main {
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(new StringWriter());
                 ex.printStackTrace(pw);
-                halt(500, "Well, thats embarrassing<br>"
+                res.status(500);
+                res.body("Well, thats embarrassing<br>"
                         + "exception " + ex.getClass().getName() + ": " + ex.getMessage() + "<br>" +
                         sw.toString());
             });

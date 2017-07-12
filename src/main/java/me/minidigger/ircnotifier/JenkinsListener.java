@@ -7,16 +7,11 @@ import org.pircbotx.Colors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
 import spark.Route;
 
-import static spark.Spark.exception;
-import static spark.Spark.halt;
-import static spark.Spark.port;
 import static spark.Spark.post;
 
 public class JenkinsListener {
@@ -42,7 +37,7 @@ public class JenkinsListener {
                 String phase = build.get("phase").getAsString();
                 if (phase.equalsIgnoreCase("QUEUED") || phase.equalsIgnoreCase("FINALIZED"))
                     return "meh";
-                String status = build.get("status").getAsString();
+                String status = build.get("status") == null ? "undefined" : build.get("status").getAsString();
                 if (status.equalsIgnoreCase("SUCCESS")) {
                     status = Colors.set(status, Colors.GREEN);
                 } else if (status.equalsIgnoreCase("failure")) {
