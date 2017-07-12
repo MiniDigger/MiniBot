@@ -63,8 +63,12 @@ public class Main {
             exception(Exception.class, (ex, req, res) -> {
                 logger.info("exception " + ex.getClass().getName() + ": " + ex.getMessage());
                 ex.printStackTrace();
-                logger.info(res.body());
-
+                try {
+                    logger.info(req.contextPath() + " " + req.body());
+                }catch (NullPointerException e){
+                    logger.info("WTF");
+                    return;
+                }
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(new StringWriter());
                 ex.printStackTrace(pw);
