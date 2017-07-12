@@ -1,6 +1,7 @@
 package me.minidigger.ircnotifier;
 
 import org.pircbotx.Channel;
+import org.pircbotx.Colors;
 import org.pircbotx.User;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.MessageEvent;
@@ -17,8 +18,8 @@ public class CommandListener extends ListenerAdapter {
     private Map<String, Command> commands = new HashMap<>();
 
     public CommandListener() {
-        commands.put("ping", (channel, user, args) -> channel.send().message(
-                Color.color(Color.AQUA) + user.getNick() + ": " + Color.color(Color.RED, Color.BLUE) + " pong!"));
+        commands.put("ping", (channel, user, args) ->
+                channel.send().message(Colors.set(user.getNick() + ": ", Colors.YELLOW) + Colors.set(" pong!", Colors.GREEN)));
     }
 
     @Override
