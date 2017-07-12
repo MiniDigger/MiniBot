@@ -162,8 +162,6 @@ public class GitHubListener {
 
         // end events
 
-        port(3263);
-
         // register route
         post("/github", (req, res) -> {
             String type = req.headers("X-GitHub-Event");
@@ -174,20 +172,6 @@ public class GitHubListener {
                 logger.info("did not handle " + type);
                 return "WTF do you want from me?!";
             }
-        });
-
-        // catch exceptions
-        exception(Exception.class, (ex, req, res) -> {
-            logger.info(req.headers("X-GitHub-Event") + " returned an exception " + ex.getClass().getName() + ": " + ex.getMessage());
-            ex.printStackTrace();
-            logger.info(res.body());
-
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(new StringWriter());
-            ex.printStackTrace(pw);
-            halt(500, "Well, thats embarrassing<br>"
-                    + req.headers("X-GitHub-Event") + " returned an exception " + ex.getClass().getName() + ": " + ex.getMessage() + "<br>" +
-                    sw.toString());
         });
     }
 

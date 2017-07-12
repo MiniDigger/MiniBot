@@ -59,24 +59,8 @@ public class JenkinsListener {
 
         // end events
 
-        port(3263);
-
         // register route
         post("/jenkins", (req, res) -> routes.get("notify").handle(req, res));
-
-        // catch exceptions
-        exception(Exception.class, (ex, req, res) -> {
-            logger.info("exception " + ex.getClass().getName() + ": " + ex.getMessage());
-            ex.printStackTrace();
-            logger.info(res.body());
-
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(new StringWriter());
-            ex.printStackTrace(pw);
-            halt(500, "Well, thats embarrassing<br>"
-                    + "exception " + ex.getClass().getName() + ": " + ex.getMessage() + "<br>" +
-                    sw.toString());
-        });
     }
 
     @FunctionalInterface
