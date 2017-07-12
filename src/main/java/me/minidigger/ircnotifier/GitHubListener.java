@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.pircbotx.Colors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,38 +16,41 @@ import java.util.Map;
 
 import spark.Route;
 
-import static spark.Spark.*;
+import static spark.Spark.exception;
+import static spark.Spark.halt;
+import static spark.Spark.port;
+import static spark.Spark.post;
 
 /**
  * Created by Martin on 23.12.2016.
  */
 public class GitHubListener {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(GitHubListener.class);
-    
+
     private Map<String, Route> routes = new HashMap<>();
     private MessageHandler messageHandler;
-    
+
     public GitHubListener(MessageHandler handler) {
         messageHandler = handler;
-        
+
         // handle events
-        
+
         // ping
         routes.put("ping", (req, res) -> "Ehy yo, github, we are alive!");
-        
+
         // issue_comment
         routes.put("issue_comment", (req, res) -> {
             JsonObject object = new JsonParser().parse(req.body()).getAsJsonObject();
-            
+
             String action = object.get("action").getAsString();
-            
+
             int issueId = object.get("issue").getAsJsonObject().get("number").getAsInt();
             String repo = object.get("repository").getAsJsonObject().get("name").getAsString();
             String url = object.get("comment").getAsJsonObject().get("html_url").getAsString();
             String username = object.get("comment").getAsJsonObject().get("user").getAsJsonObject().get("login").getAsString();
             String body = object.get("comment").getAsJsonObject().get("body").getAsString();
-            
+
             switch (action) {
                 case "created":
                     messageHandler.handleMessage(username + " commented on " + repo + "#" + issueId + ": " + body + " (" + url + ")");
@@ -54,20 +58,20 @@ public class GitHubListener {
             }
             return "Cool story bro";
         });
-        
+
         // issues
         routes.put("issues", (req, res) -> {
             JsonObject object = new JsonParser().parse(req.body()).getAsJsonObject();
             JsonObject issue = object.getAsJsonObject("issue").getAsJsonObject();
-            
+
             String action = object.get("action").getAsString();
-            
+
             int issueId = issue.get("number").getAsInt();
             String url = issue.get("html_url").getAsString();
             String title = issue.get("title").getAsString();
             String username = issue.get("user").getAsJsonObject().get("login").getAsString();
             String repo = object.get("repository").getAsJsonObject().get("name").getAsString();
-            
+
             switch (action) {
                 case "opened":
                     messageHandler.handleMessage(username + " opened issue " + repo + "#" + issueId + ": " + title + " (" + url + ")");
@@ -81,17 +85,17 @@ public class GitHubListener {
             }
             return "That happened";
         });
-        
+
         // create
         routes.put("create", (req, res) -> {
             JsonObject object = new JsonParser().parse(req.body()).getAsJsonObject();
-            
+
             String type = object.get("ref_type").getAsString();
-            
+
             String repo = object.get("repository").getAsJsonObject().get("name").getAsString();
             String tag = object.get("ref").getAsString();
             String username = object.get("sender").getAsJsonObject().get("login").getAsString();
-            
+
             switch (type) {
                 case "tag":
                     messageHandler.handleMessage(username + " created tag " + tag + " on repo " + repo); // TODO can we get an url here?
@@ -99,46 +103,48 @@ public class GitHubListener {
             }
             return "Cool stuff";
         });
-        
+
         // push
         routes.put("push", (req, res) -> {
             JsonObject object = new JsonParser().parse(req.body()).getAsJsonObject();
             JsonArray commits = object.get("commits").getAsJsonArray();
-            
+
             String ref = object.get("ref").getAsString().replace("refs/heads/", "");
             String url = object.get("compare").getAsString();
             String user = object.get("pusher").getAsJsonObject().get("name").getAsString();
             String repo = object.get("repository").getAsJsonObject().get("name").getAsString();
-            
-            messageHandler.handleMessage(user + " pushed " + commits.size() + " commit(s) to " + ref + "@" + repo + " (" + url + ")");
-            
+
+            messageHandler.handleMessage(user + " pushed " + commits.size() + " commit(s) to " + ref + "@"
+                    + Colors.set(repo, Colors.YELLOW) + " (" + url + ")");
+
             for (JsonElement elem : commits) {
                 JsonObject obj = elem.getAsJsonObject();
-                
+
                 String username = obj.get("author").getAsJsonObject().get("username").getAsString();
                 String message = obj.get("message").getAsString();
                 int added = obj.get("added").getAsJsonArray().size();
                 int modified = obj.get("modified").getAsJsonArray().size();
                 int removed = obj.get("removed").getAsJsonArray().size();
-                
-                messageHandler.handleMessage(username + ": " + message + " (+" + added + "/-" + removed + "/~" + modified + ")");
+
+                messageHandler.handleMessage(username + ": " + message + " (" + Colors.set("+" + added, Colors.GREEN)
+                        + "/" + Colors.set("-" + removed, Colors.RED) + "/" + Colors.set("~" + modified, Colors.YELLOW) + ")");
             }
             return "Push harder pls";
         });
-        
+
         // pull request
         routes.put("pull_request", (req, res) -> {
             JsonObject object = new JsonParser().parse(req.body()).getAsJsonObject();
             JsonObject pr = object.getAsJsonObject("pull_request").getAsJsonObject();
-            
+
             String action = object.get("action").getAsString();
-            
+
             int id = object.get("number").getAsInt();
             String repo = object.get("repository").getAsJsonObject().get("name").getAsString();
             String url = pr.get("html_url").getAsString();
             String title = pr.get("title").getAsString();
             String user = pr.get("user").getAsJsonObject().get("login").getAsString();
-            
+
             switch (action) {
                 case "opened":
                     messageHandler.handleMessage(user + " opened pr " + repo + "#" + id + ":  " + title + " (" + url + ")");
@@ -150,14 +156,14 @@ public class GitHubListener {
                     messageHandler.handleMessage(user + " reopened pr " + repo + "#" + id + ":  " + title + " (" + url + ")");
                     break;
             }
-            
+
             return "Pull me closer";
         });
-        
+
         // end events
-        
+
         port(3263);
-        
+
         // register route
         post("/github", (req, res) -> {
             String type = req.headers("X-GitHub-Event");
@@ -169,13 +175,13 @@ public class GitHubListener {
                 return "WTF do you want from me?!";
             }
         });
-        
+
         // catch exceptions
         exception(Exception.class, (ex, req, res) -> {
             logger.info(req.headers("X-GitHub-Event") + " returned an exception " + ex.getClass().getName() + ": " + ex.getMessage());
             ex.printStackTrace();
             logger.info(res.body());
-            
+
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(new StringWriter());
             ex.printStackTrace(pw);
@@ -184,7 +190,7 @@ public class GitHubListener {
                     sw.toString());
         });
     }
-    
+
     @FunctionalInterface
     interface MessageHandler {
         void handleMessage(String message);

@@ -3,6 +3,7 @@ package me.minidigger.ircnotifier;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.pircbotx.Colors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,19 @@ public class JenkinsListener {
 
             // ignore all other projects
             if (name.equalsIgnoreCase("VoxelGamesLibv2")) {
-                messageHandler.handleMessage("Project " + name + " build #" + build.get("number").getAsInt() + ": " + build.get("phase").getAsString() + " [" + build.get("status") + "] (" + build.get("full_url").getAsString() + ")");
+                String phase = build.get("phase").getAsString();
+                if (phase.equalsIgnoreCase("QUEUED") || phase.equalsIgnoreCase("FINALIZED"))
+                    return "meh";
+                String status = build.get("status").getAsString();
+                if (status.equalsIgnoreCase("SUCCESS")) {
+                    status = Colors.set(status, Colors.GREEN);
+                } else if (status.equalsIgnoreCase("failure")) {
+                    status = Colors.set(status, Colors.RED);
+                } else {
+                    status = Colors.set(status, Colors.YELLOW);
+                }
+
+                messageHandler.handleMessage("Project " + name + " build #" + build.get("number").getAsInt() + ": " + phase + " [" + status + "] (" + build.get("full_url").getAsString() + ")");
             }
 
             return "meh";
