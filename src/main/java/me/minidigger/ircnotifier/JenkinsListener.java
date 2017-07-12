@@ -1,18 +1,22 @@
 package me.minidigger.ircnotifier;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spark.Route;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import static spark.Spark.*;
+import spark.Route;
+
+import static spark.Spark.exception;
+import static spark.Spark.halt;
+import static spark.Spark.port;
+import static spark.Spark.post;
 
 public class JenkinsListener {
     private static final Logger logger = LoggerFactory.getLogger(JenkinsListener.class);
@@ -28,7 +32,6 @@ public class JenkinsListener {
         // notify
         routes.put("notify", (req, res) -> {
             JsonObject object = new JsonParser().parse(req.body()).getAsJsonObject();
-            JsonArray commits = object.get("commits").getAsJsonArray();
 
             String name = object.get("name").getAsString();
             JsonObject build = object.get("build").getAsJsonObject();
