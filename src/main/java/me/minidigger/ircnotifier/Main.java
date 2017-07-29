@@ -59,13 +59,23 @@ public class Main {
         startThread("Spark", () -> {
             port(3263);
 
+            new GitHubListener((msg) -> {
+                ghLogger.info(msg);
+                bot.sendIRC().message(channel, msg);
+            });
+
+            new JenkinsListener((msg) -> {
+                ciLogger.info(msg);
+                bot.sendIRC().message(channel, msg);
+            });
+
             // catch exceptions
             exception(Exception.class, (ex, req, res) -> {
                 logger.info("exception " + ex.getClass().getName() + ": " + ex.getMessage());
                 ex.printStackTrace();
                 try {
                     logger.info(req.contextPath() + " " + req.body());
-                }catch (NullPointerException e){
+                } catch (NullPointerException e) {
                     logger.info("WTF");
                     return;
                 }
@@ -78,16 +88,6 @@ public class Main {
                         sw.toString());
             });
         });
-
-        startThread("GitHub Listener", () -> new GitHubListener((msg) -> {
-            ghLogger.info(msg);
-            bot.sendIRC().message(channel, msg);
-        }));
-
-        startThread("Jenkins Listener", () -> new JenkinsListener((msg) -> {
-            ciLogger.info(msg);
-            bot.sendIRC().message(channel, msg);
-        }));
 
         startThread("PircBot", () -> {
             try {
