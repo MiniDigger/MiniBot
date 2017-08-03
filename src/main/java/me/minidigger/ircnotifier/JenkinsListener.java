@@ -15,7 +15,6 @@ import spark.Route;
 import static spark.Spark.post;
 
 public class JenkinsListener {
-    private static final Logger logger = LoggerFactory.getLogger(JenkinsListener.class);
 
     private Map<String, Route> routes = new HashMap<>();
     private JenkinsListener.MessageHandler messageHandler;
@@ -32,24 +31,21 @@ public class JenkinsListener {
             String name = object.get("name").getAsString();
             JsonObject build = object.get("build").getAsJsonObject();
 
-            // ignore all other projects
-            if (name.equalsIgnoreCase("VoxelGamesLibv2")) {
-                String phase = build.get("phase").getAsString();
-                if (phase.equalsIgnoreCase("QUEUED") || phase.equalsIgnoreCase("FINALIZED"))
-                    return "meh";
-                String status = build.get("status") == null ? "undefined" : build.get("status").getAsString();
-                if (status.equalsIgnoreCase("SUCCESS")) {
-                    status = Colors.set(status, Colors.GREEN);
-                } else if (status.equalsIgnoreCase("failure")) {
-                    status = Colors.set(status, Colors.RED);
-                } else {
-                    status = Colors.set(status, Colors.YELLOW);
-                }
-
-                messageHandler.handleMessage("Project " + name + " build #" + build.get("number").getAsInt() + ": " + phase + " [" + status + "] (" + build.get("full_url").getAsString() + ")");
+            String phase = build.get("phase").getAsString();
+            if (phase.equalsIgnoreCase("QUEUED") || phase.equalsIgnoreCase("FINALIZED"))
+                return "meh";
+            String status = build.get("status") == null ? "undefined" : build.get("status").getAsString();
+            if (status.equalsIgnoreCase("SUCCESS")) {
+                status = Colors.set(status, Colors.GREEN);
+            } else if (status.equalsIgnoreCase("failure")) {
+                status = Colors.set(status, Colors.RED);
+            } else {
+                status = Colors.set(status, Colors.YELLOW);
             }
 
-            return "meh";
+            messageHandler.handleMessage("Project " + name + " build #" + build.get("number").getAsInt() + ": " + phase + " [" + status + "] (" + build.get("full_url").getAsString() + ")");
+
+            return "tanks 4 ya msg m8";
         });
 
         // end events
