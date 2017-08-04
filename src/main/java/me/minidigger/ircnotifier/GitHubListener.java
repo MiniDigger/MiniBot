@@ -9,16 +9,11 @@ import org.pircbotx.Colors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
 import spark.Route;
 
-import static spark.Spark.exception;
-import static spark.Spark.halt;
-import static spark.Spark.port;
 import static spark.Spark.post;
 
 /**
@@ -113,8 +108,11 @@ public class GitHubListener {
             String url = object.get("compare").getAsString();
             String user = object.get("pusher").getAsJsonObject().get("name").getAsString();
             String repo = object.get("repository").getAsJsonObject().get("name").getAsString();
+            boolean force = object.get("forced").getAsBoolean();
 
-            messageHandler.handleMessage(user + " pushed " + commits.size() + " commit(s) to " + ref + "@"
+            String pushed = force ? Colors.set(" force pushed ", Colors.RED) : " pushed ";
+
+            messageHandler.handleMessage(user + pushed + commits.size() + " commit(s) to " + ref + "@"
                     + Colors.set(repo, Colors.YELLOW) + " (" + url + ")");
 
             for (JsonElement elem : commits) {
