@@ -69,7 +69,7 @@ public class GitHubListener {
             int issueId = issue.get("number").getAsInt();
             String url = issue.get("html_url").getAsString();
             String title = issue.get("title").getAsString();
-            String username = issue.get("user").getAsJsonObject().get("login").getAsString();
+            String username = object.get("sender").getAsJsonObject().get("login").getAsString();
             String repo = object.get("repository").getAsJsonObject().get("name").getAsString();
 
             switch (action) {
